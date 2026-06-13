@@ -1117,7 +1117,10 @@ function actualizarNav(){
   });
   var html='<button class="nav-btn'+(regionActual==='todas'?' active':'')+'" onclick="filtrarRegion(\'todas\')">Todas</button>';
   sorted.forEach(function(r){
-    html+='<button class="nav-btn'+(regionActual===r?' active':'')+'" onclick="filtrarRegion('+JSON.stringify(r)+')">'+gi(r)+' '+r+'</button>';
+    // FIX: JSON.stringify produces double quotes that break onclick="..." HTML attribute.
+    // Use single-quote escaping instead so the attribute stays valid.
+    var safeR = r.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    html+='<button class="nav-btn'+(regionActual===r?' active':'')+'" onclick="filtrarRegion(\''+safeR+'\')">'+gi(r)+' '+r+'</button>';
   });
   document.getElementById('nav-regiones').innerHTML=html;
 }
