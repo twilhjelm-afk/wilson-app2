@@ -56,7 +56,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .pill{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-family:var(--mono);font-size:10px;color:var(--text2);display:flex;align-items:center;gap:5px;flex-shrink:0}
 .pill .live-dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 1.4s ease-in-out infinite;flex-shrink:0}
 .pill .num{color:#fff;font-weight:700}
-/* Indicador SSE */
 .sse-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .3s}
 .sse-dot.connected{background:var(--green);animation:blink 2s ease-in-out infinite}
 .sse-dot.error{background:var(--red)}
@@ -80,6 +79,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .fchip.gemini-chip.active{color:var(--gemini);border-bottom-color:var(--gemini)}
 .fchip.modelo-chip{display:none}.fchip.modelo-chip.has-data{display:flex}
 .fchip.modelo-chip.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.fchip.historial-chip.active{color:var(--gold);border-bottom-color:var(--gold)}
 .fchip-dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.7;flex-shrink:0}
 
 /* ── BARRA DE DÍAS ── */
@@ -101,7 +101,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .layout{max-width:1320px;margin:0 auto;padding:20px 20px 40px;display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
 @media(max-width:1024px){.layout{grid-template-columns:1fr;padding:14px 14px 80px}.sidebar{display:contents}.sidebar-sticky{position:static;order:-1}}
 
-/* ── EV BADGE GLOBAL ── */
+/* ── EV BADGE ── */
 .ev-badge{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;flex-shrink:0;align-self:flex-start}
 .ev-pos{background:rgba(168,255,62,.1);color:var(--ev-pos);border:1px solid rgba(168,255,62,.2)}
 .ev-neg{background:rgba(255,51,85,.07);color:var(--ev-neg);border:1px solid rgba(255,51,85,.15)}
@@ -144,7 +144,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .prob-val{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--gold);display:block}
 .prob-lbl{font-size:7px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
 
-/* top 5 */
+/* top5 */
 .tp-multipicks{margin:8px 16px 0;border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:5px}
 .mp-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;transition:border-color .15s}
 .mp-row:hover{border-color:var(--border2)}
@@ -171,6 +171,46 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .t5-pick{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--gold)}
 .t5-probs{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:2px}
 .t5-conf{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;align-self:flex-start;flex-shrink:0}
+
+/* ── HISTORIAL SECTION ── */
+.historial-view{display:none}
+.historial-view.visible{display:block}
+.hist-stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.hist-stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.hist-stat-val{font-family:var(--mono);font-size:24px;font-weight:800;color:var(--gold);display:block;margin-bottom:2px}
+.hist-stat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+.hist-stat.verde .hist-stat-val{color:var(--green)}
+.hist-stat.rojo .hist-stat-val{color:var(--red)}
+.hist-list{display:flex;flex-direction:column;gap:6px}
+.hist-item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:12px;transition:border-color .15s}
+.hist-item.correcto{border-left:3px solid var(--green)}
+.hist-item.incorrecto{border-left:3px solid var(--red)}
+.hist-item.pendiente{border-left:3px solid var(--text3)}
+.hist-result-icon{font-size:18px;flex-shrink:0;min-width:24px;text-align:center}
+.hist-info{flex:1;min-width:0}
+.hist-partido{font-size:12px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-pick{font-family:var(--mono);font-size:10px;color:var(--gold)}
+.hist-mercado{font-family:var(--mono);font-size:9px;color:var(--text3)}
+.hist-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.hist-score{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text)}
+.hist-prob{font-family:var(--mono);font-size:10px;color:var(--text2)}
+.hist-fecha{font-family:var(--mono);font-size:9px;color:var(--text3)}
+/* Gráfico de calibración */
+.calib-chart{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.calib-title{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:12px}
+.calib-bars{display:flex;flex-direction:column;gap:8px}
+.calib-row{display:flex;align-items:center;gap:10px}
+.calib-lbl{font-family:var(--mono);font-size:9px;color:var(--text3);min-width:50px;text-align:right}
+.calib-bar-wrap{flex:1;height:16px;background:var(--bg3);border-radius:4px;overflow:hidden;position:relative}
+.calib-bar-fill{height:100%;border-radius:4px;transition:width .6s ease;display:flex;align-items:center;padding:0 6px}
+.calib-bar-txt{font-family:var(--mono);font-size:9px;font-weight:700;color:rgba(255,255,255,.8);white-space:nowrap}
+.calib-count{font-family:var(--mono);font-size:9px;color:var(--text3);min-width:30px}
+/* Por mercado */
+.mercado-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:16px}
+.ms-item{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+.ms-val{font-family:var(--mono);font-size:16px;font-weight:800;color:var(--gold)}
+.ms-lbl{font-size:9px;color:var(--text3);margin-top:2px}
+.ms-total{font-family:var(--mono);font-size:9px;color:var(--text2);margin-top:1px}
 
 /* tabs */
 .tab-row{display:flex;gap:6px;margin-bottom:16px}
@@ -202,8 +242,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .card.visible{opacity:1;transform:translateY(0);transition:opacity .35s ease,transform .35s ease,box-shadow .18s ease,border-color .18s ease}
 .card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.4);border-color:var(--border2)}
 .card:active{transform:scale(.99)}
-
-/* Barra lateral de confianza */
 .card-conf-bar{position:absolute;left:0;top:0;bottom:0;width:3px}
 .card.conf-alta .card-conf-bar{background:var(--green)}
 .card.conf-media .card-conf-bar{background:var(--gold)}
@@ -212,20 +250,15 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .card.gemini-card{border-color:rgba(66,133,244,.2)}
 .card.gemini-card .card-conf-bar{background:var(--gemini)}
 .card.favorited{border-color:rgba(245,200,66,.2)}
-
-/* Franja EV negativo — pick de bajo valor claramente visible */
 .card.ev-negativo::after{content:'EV−';position:absolute;top:6px;right:8px;font-family:var(--mono);font-size:7px;font-weight:800;color:var(--ev-neg);background:rgba(255,51,85,.08);border:1px solid rgba(255,51,85,.2);border-radius:3px;padding:1px 4px;letter-spacing:1px;pointer-events:none}
-
 @keyframes gemini-pulse{0%{box-shadow:0 0 0 0 rgba(66,133,244,.4)}70%{box-shadow:0 0 0 8px rgba(66,133,244,0)}100%{box-shadow:none}}
 .card.gemini-flash{animation:gemini-pulse .9s ease}
-
 .card-pitch{position:absolute;right:-10px;top:50%;transform:translateY(-50%);width:80px;height:56px;opacity:.035;pointer-events:none}
 .card-liga{padding:6px 12px 6px 15px;font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
 .card-liga-region{color:var(--blue);font-weight:700}
 .live-badge{background:rgba(255,51,85,.1);border:1px solid rgba(255,51,85,.25);border-radius:4px;padding:1px 6px;font-size:9px;font-weight:700;color:var(--red);display:flex;align-items:center;gap:3px;flex-shrink:0}
 .live-dot{width:5px;height:5px;border-radius:50%;background:var(--red);animation:blink 1.3s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-
 .card-body{padding:10px 12px 10px 15px;position:relative}
 .card-equipos{font-size:13px;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.3;padding-right:70px}
 .card-equipos .vs{color:var(--text3);font-weight:400;font-size:11px}
@@ -234,10 +267,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .card-minuto{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--red);background:rgba(255,51,85,.08);border:1px solid rgba(255,51,85,.2);padding:2px 7px;border-radius:4px}
 .card-fecha{font-size:11px;color:var(--text2)}
 .card-hora{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--gold)}
-
-/* Pick dentro de la card */
 .card-pick{background:var(--bg3);border-radius:8px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--border)}
-/* EV negativo: atenúa la card-pick para indicar baja value */
 .card.ev-negativo .card-pick{opacity:.75;border-color:rgba(255,51,85,.15)}
 .cp-top{display:flex;align-items:flex-start;gap:7px}
 .cp-icon{font-size:13px;flex-shrink:0;margin-top:1px}
@@ -250,16 +280,13 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .cp-source{font-family:var(--mono);font-size:9px;font-weight:700;margin-top:3px;display:flex;align-items:center;gap:3px}
 .cp-source.gemini{color:var(--gemini)}
 .cp-source.modelo{color:var(--cyan)}
-
 .card-toppicks{display:flex;gap:4px;padding:0 12px 0 15px;flex-wrap:nowrap;overflow-x:auto;margin-bottom:6px;-ms-overflow-style:none;scrollbar-width:none}
 .card-toppicks::-webkit-scrollbar{display:none}
 .ctp-item{flex-shrink:0;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;text-align:center;min-width:60px}
 .ctp-item.best{border-color:rgba(245,200,66,.25);background:rgba(245,200,66,.05)}
-/* EV negativo en top picks */
 .ctp-item.ev-neg-item{border-color:rgba(255,51,85,.15);opacity:.7}
 .ctp-pick{font-size:9px;font-weight:700;color:var(--text);line-height:1.2;margin-bottom:2px}
 .ctp-meta{font-family:var(--mono);font-size:8px;color:var(--text3)}
-
 .card-xg{padding:0 12px 0 15px;margin-bottom:6px;display:none}
 .card-xg.visible{display:block}
 .card-xg-inner{background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.1);border-radius:7px;padding:7px 9px}
@@ -275,13 +302,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .cxg-p{flex:1;background:var(--bg4);border-radius:4px;padding:3px 2px;text-align:center}
 .cxg-pv{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--gold);display:block}
 .cxg-pl{font-size:7px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
-
 .card-actions{display:flex;gap:5px;padding:0 12px 10px 15px}
 .btn-card{flex:1;background:none;border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text3);font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:4px;font-family:var(--sans)}
 .btn-card:hover{background:var(--bg3);color:var(--text);border-color:var(--border2)}
 .btn-card.fav-btn.active{border-color:rgba(245,200,66,.3);color:var(--gold)}
 .btn-card.share-btn:hover{border-color:rgba(0,212,255,.3);color:var(--cyan)}
-
 .conf-alta{background:rgba(168,255,62,.1);color:var(--green)}
 .conf-media{background:rgba(245,200,66,.1);color:var(--gold)}
 .conf-baja{background:rgba(100,100,120,.15);color:var(--text3)}
@@ -337,7 +362,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .ma-picks-grid{display:flex;flex-direction:column;gap:6px;margin-top:2px}
 .ma-pick-row{display:flex;align-items:center;gap:10px;background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
 .ma-pick-row.top{border-color:rgba(245,200,66,.25);background:rgba(245,200,66,.04)}
-/* EV negativo en modal mercados */
 .ma-pick-row.ev-negativo-row{opacity:.65;border-color:rgba(255,51,85,.15)}
 .mpr-info{flex:1;min-width:0}
 .mpr-mercado{font-family:var(--mono);font-size:8px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px}
@@ -359,7 +383,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .bar-wrap{flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
 .bar-h{height:100%;background:var(--blue);border-radius:2px;transition:width .6s ease}
 .bar-a{height:100%;background:var(--orange);border-radius:2px;margin-left:auto;transition:width .6s ease}
-.stat-sec{font-family:var(--mono);font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:2px;margin:12px 0 8px;padding-top:8px;border-top:1px solid var(--border)}
 .no-data{text-align:center;padding:32px;color:var(--text3);font-size:12px}
 .no-data-icon{font-size:28px;display:block;margin-bottom:8px;opacity:.4}
 .loading-mini{text-align:center;padding:24px;color:var(--text3);font-size:12px;font-family:var(--mono)}
@@ -397,17 +420,16 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   </div>
 </div></div>
 
-<!-- FILTROS -->
 <div class="filter-bar">
-  <button class="fchip active" data-filter="todos"     onclick="setFilter('todos',this)">Todos</button>
-  <button class="fchip alta"   data-filter="alta"      onclick="setFilter('alta',this)"><span class="fchip-dot"></span>Alta confianza</button>
-  <button class="fchip ev-chip" data-filter="ev_pos"   onclick="setFilter('ev_pos',this)"><span class="fchip-dot"></span>EV+ <span id="chip-ev-count" style="opacity:.6"></span></button>
-  <button class="fchip modelo-chip" id="chip-modelo"   data-filter="modelo"    onclick="setFilter('modelo',this)"><span class="fchip-dot"></span>xG Model <span id="chip-modelo-count" style="opacity:.6"></span></button>
-  <button class="fchip gemini-chip" id="chip-gemini"   data-filter="gemini"    onclick="setFilter('gemini',this)"><span class="fchip-dot"></span>Gemini <span id="chip-gemini-count" style="opacity:.6"></span></button>
-  <button class="fchip"            data-filter="favoritos" onclick="setFilter('favoritos',this)">★ Favoritos</button>
+  <button class="fchip active"           data-filter="todos"      onclick="setFilter('todos',this)">Todos</button>
+  <button class="fchip alta"             data-filter="alta"       onclick="setFilter('alta',this)"><span class="fchip-dot"></span>Alta confianza</button>
+  <button class="fchip ev-chip"          data-filter="ev_pos"     onclick="setFilter('ev_pos',this)"><span class="fchip-dot"></span>EV+ <span id="chip-ev-count" style="opacity:.6"></span></button>
+  <button class="fchip modelo-chip"      id="chip-modelo" data-filter="modelo"    onclick="setFilter('modelo',this)"><span class="fchip-dot"></span>xG Model <span id="chip-modelo-count" style="opacity:.6"></span></button>
+  <button class="fchip gemini-chip"      id="chip-gemini" data-filter="gemini"    onclick="setFilter('gemini',this)"><span class="fchip-dot"></span>Gemini <span id="chip-gemini-count" style="opacity:.6"></span></button>
+  <button class="fchip"                  data-filter="favoritos"  onclick="setFilter('favoritos',this)">★ Favoritos</button>
+  <button class="fchip historial-chip"   data-filter="historial"  onclick="setFilter('historial',this)">📊 Historial</button>
 </div>
 
-<!-- SELECTOR DÍA -->
 <div class="day-bar" id="day-bar" style="display:none">
   <button class="day-btn active" id="day-btn-0" onclick="setDia(0)">📅 Hoy <span class="day-count" id="day-count-0">0</span></button>
   <button class="day-btn"        id="day-btn-1" onclick="setDia(1)">⏭ Mañana <span class="day-count" id="day-count-1">0</span></button>
@@ -415,15 +437,19 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 </div>
 
 <div class="nav-bar"><div class="nav-inner" id="nav-regiones"><button class="nav-btn active" onclick="filtrarRegion('todas')">Todas</button></div></div>
+
 <div class="layout">
   <div class="feed" id="feed-col">
     <div class="ai-banner" id="gemini-processing"><div class="ai-spinner"></div><div style="flex:1">Analizando con Gemini + modelo Dixon-Coles…</div></div>
     <div class="countdown-bar" id="next-match-bar"><div><div class="cd-lbl">Próximo</div><div class="cd-partido" id="nmb-partido">—</div></div><div class="cd-timer" id="nmb-timer">--:--</div></div>
-    <div class="tab-row">
+    <div class="tab-row" id="tab-row-main">
       <div class="tab active" id="tab-v" onclick="cambiarTab('vivo')"><span style="color:var(--red)">●</span> En Vivo <span class="tab-count" id="tc-v">0</span></div>
       <div class="tab"        id="tab-p" onclick="cambiarTab('proximo')"><span style="color:var(--blue)">●</span> Próximos <span class="tab-count" id="tc-p">0</span></div>
     </div>
     <div class="status-bar"><div id="result-count"></div><div id="update-time"></div></div>
+    <!-- Vista historial -->
+    <div class="historial-view" id="historial-view"></div>
+    <!-- Vista partidos -->
     <div id="contenido"><div class="empty"><span class="empty-icon">⚽</span><p>Presioná <strong>CARGAR</strong> para ver los partidos</p></div></div>
   </div>
   <div class="sidebar"><div class="sidebar-sticky" id="sidebar-sticky" style="position:sticky;top:76px">
@@ -451,6 +477,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
   </div></div>
 </div>
+
 <div class="toast" id="toast"></div>
 <div class="modal-overlay hidden" id="modal-overlay" onclick="cerrarModal(event)">
   <div class="mini-app" id="mini-app">
@@ -480,11 +507,11 @@ var todosVivos=[], todosProximos=[], tabActual='vivo', regionActual='todas';
 var maPartidoActual=null, maStatsCache={}, maTabActual='general';
 var filterActivo='todos', searchTerm='', favs={}, mejorPickData=null;
 var countdownInterval=null, top5Visible=false, diaActivo=0;
-var sseSource=null;
+var sseSource=null, historialData=null;
 
 try { favs = JSON.parse(localStorage.getItem('wilson_favs')||'{}'); } catch(e) { favs={}; }
 
-const REGION_ICONS = {'Mundial':'🌍','Selecciones':'🏆','Sudamerica':'🌎','Argentina':'🇦🇷','Brasil':'🇧🇷','Chile':'🇨🇱','Colombia':'🇨🇴','Uruguay':'🇺🇾','Peru':'🇵🇪','Ecuador':'🇪🇨','Paraguay':'🇵🇾','Bolivia':'🇧🇴','Venezuela':'🇻🇪','MLS':'🇺🇸','Australia':'🇦🇺','Japon':'🇯🇵','Suecia':'🇸🇪','Noruega':'🇳🇴','Espana':'🇪🇸','Inglaterra':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Francia':'🇫🇷','Italia':'🇮🇹','Alemania':'🇩🇪','Portugal':'🇵🇹','Turquia':'🇹🇷','Escocia':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Europa':'🇪🇺','Holanda':'🇳🇱','Finlandia':'🇫🇮','Irlanda':'🇮🇪','China':'🇨🇳','Mexico':'🇲🇽','Otro':'🌍'};
+const REGION_ICONS = {'Mundial':'🌍','Selecciones':'🏆','Sudamerica':'🌎','Argentina':'🇦🇷','Brasil':'🇧🇷','Chile':'🇨🇱','Colombia':'🇨🇴','Uruguay':'🇺🇾','Peru':'🇵🇪','Ecuador':'🇪🇨','Paraguay':'🇵🇾','Bolivia':'🇧🇴','Venezuela':'🇻🇪','MLS':'🇺🇸','Australia':'🇦🇺','Japon':'🇯🇵','Corea':'🇰🇷','Suecia':'🇸🇪','Noruega':'🇳🇴','Espana':'🇪🇸','Inglaterra':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Francia':'🇫🇷','Italia':'🇮🇹','Alemania':'🇩🇪','Portugal':'🇵🇹','Turquia':'🇹🇷','Escocia':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Europa':'🇪🇺','Holanda':'🇳🇱','Belgica':'🇧🇪','Grecia':'🇬🇷','Finlandia':'🇫🇮','Irlanda':'🇮🇪','China':'🇨🇳','Mexico':'🇲🇽','Otro':'🌍'};
 function gi(r){return REGION_ICONS[r]||'🌍';}
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function ccls(c){return 'conf-'+(c==='alta'?'alta':c==='media'?'media':'baja');}
@@ -494,26 +521,15 @@ function showToast(msg,ms){var t=document.getElementById('toast');t.innerHTML=ms
 
 // ── SSE ──────────────────────────────────────────────────────────
 function conectarSSE() {
-  if (!window.EventSource) return; // fallback: solo polling manual
+  if (!window.EventSource) return;
   if (sseSource) { sseSource.close(); }
-
   var dot = document.getElementById('sse-dot');
   sseSource = new EventSource(SERVER + '/api/stream');
-
-  sseSource.onopen = function() {
-    dot.className = 'sse-dot connected';
-    dot.title = 'Tiempo real conectado';
-  };
-
+  sseSource.onopen = function() { dot.className = 'sse-dot connected'; dot.title = 'Tiempo real conectado'; };
   sseSource.onerror = function() {
-    dot.className = 'sse-dot error';
-    dot.title = 'Reconectando...';
-    // EventSource reconecta solo, pero si falla mucho cerramos
-    setTimeout(function() {
-      if (sseSource.readyState === EventSource.CLOSED) conectarSSE();
-    }, 10000);
+    dot.className = 'sse-dot error'; dot.title = 'Reconectando...';
+    setTimeout(function() { if (sseSource.readyState === EventSource.CLOSED) conectarSSE(); }, 10000);
   };
-
   sseSource.addEventListener('update', function(e) {
     var d = JSON.parse(e.data);
     if (d.proximos) { todosProximos = d.proximos; document.getElementById('tc-p').textContent = todosProximos.length; actualizarChips(); }
@@ -521,27 +537,24 @@ function conectarSSE() {
     if (d.mejorPick) renderMejorPick(d.mejorPick);
     document.getElementById('update-time').textContent = 'Live · ' + new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
   });
-
   sseSource.addEventListener('live', function(e) {
     var d = JSON.parse(e.data);
     if (d.vivos) actualizarVivosSSE(d.vivos);
-    if (d.goles) showToast('⚽ ¡Gol!', 3000);
   });
-
+  sseSource.addEventListener('gol', function(e) {
+    showToast('⚽ ¡Gol!', 3500);
+  });
   sseSource.addEventListener('gemini', function(e) {
     var d = JSON.parse(e.data);
     var fid = String(d.fixtureId), pick = d.pick;
-    // Actualizar en memoria
     var p = window.partidosMap[fid];
     if (p) { p._pick = pick; window.partidosMap[fid] = p; }
     var found = todosProximos.find(function(x){ return String(x.fixture.id)===fid; });
     if (found) found._pick = pick;
-    // Actualizar card en DOM
     actualizarCardPick(fid, pick);
     actualizarChips();
-    showToast('✦ Gemini: '+esc(pick.pick||'')+'', 2500);
+    showToast('✦ Gemini: '+esc(pick.pick||''), 2500);
   });
-
   sseSource.addEventListener('mejorpick', function(e) {
     var d = JSON.parse(e.data);
     if (d.mejorPick) renderMejorPick(d.mejorPick);
@@ -553,7 +566,6 @@ function actualizarVivosSSE(nuevosVivos) {
   todosVivos = nuevosVivos;
   document.getElementById('cnt-v').textContent = todosVivos.length;
   document.getElementById('tc-v').textContent  = todosVivos.length;
-  // Registrar en mapa
   todosVivos.forEach(function(p){ window.partidosMap[String(p.fixture.id)] = p; });
   actualizarTicker();
   if (tabActual === 'vivo') renderContenido();
@@ -580,16 +592,8 @@ function inicioDelDia(offset){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.g
 function finDelDia(offset){var d=inicioDelDia(offset);d.setHours(23,59,59,999);return d;}
 function esDia(fecha,offset){var f=new Date(fecha);return f>=inicioDelDia(offset)&&f<=finDelDia(offset);}
 function contarPorDia(partidos,offset){return partidos.filter(function(p){return esDia(p.fixture.date,offset);}).length;}
-
-function setDia(d){
-  diaActivo=d;
-  [0,1,2].forEach(function(i){document.getElementById('day-btn-'+i).classList.toggle('active',i===d);});
-  renderContenido();
-}
-function actualizarContadoresDia(){
-  var base=todosProximos;
-  [0,1,2].forEach(function(i){document.getElementById('day-count-'+i).textContent=contarPorDia(base,i);});
-}
+function setDia(d){diaActivo=d;[0,1,2].forEach(function(i){document.getElementById('day-btn-'+i).classList.toggle('active',i===d);});renderContenido();}
+function actualizarContadoresDia(){[0,1,2].forEach(function(i){document.getElementById('day-count-'+i).textContent=contarPorDia(todosProximos,i);});}
 
 // ── TICKER ────────────────────────────────────────────────────────
 function actualizarTicker(){
@@ -613,19 +617,45 @@ function iniciarCountdown(){
   var next=prox[0];
   partEl.textContent=next.teams.home.name+' vs '+next.teams.away.name;
   bar.classList.add('visible');
-  function tick(){var diff=new Date(next.fixture.date)-new Date();if(diff<=0){clearInterval(countdownInterval);timerEl.textContent='YA!';return;}var h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);timerEl.textContent=(h>0?pad(h)+'h ':'')+pad(m)+'m '+pad(s)+'s';}
+  function tick(){var diff=new Date(next.fixture.date)-new Date();if(diff<=0){clearInterval(countdownInterval);timerEl.textContent='¡YA!';return;}var h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);timerEl.textContent=(h>0?pad(h)+'h ':'')+pad(m)+'m '+pad(s)+'s';}
   tick(); countdownInterval=setInterval(tick,1000);
 }
 
 // ── FAVORITOS ─────────────────────────────────────────────────────
 function toggleFav(fid,e){if(e)e.stopPropagation();var k=String(fid);if(favs[k]){delete favs[k];showToast('Quitado');}else{favs[k]=true;showToast('★ Guardado');}try{localStorage.setItem('wilson_favs',JSON.stringify(favs));}catch(err){}renderContenido();}
-function compartir(p,e){if(e)e.stopPropagation();var pick=p._pick||{};var txt='Wilson Analista\n'+p.teams.home.name+' vs '+p.teams.away.name+'\nLiga: '+p.league.name+'\nPick: '+pick.pick+(pick.mercado?' ['+pick.mercado+']':'')+(pick.prob?'\nProb: '+pick.prob+'%':'')+(pick.cuota?'  Cuota: '+pick.cuota:'')+(pick.ev!=null?'  EV: '+(pick.ev>=0?'+':'')+pick.ev+'%':'')+'\nConfianza: '+ctxt(pick.confianza)+'\n'+pick.razonamiento;if(navigator.share)navigator.share({title:'Wilson',text:txt}).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){showToast('Copiado ✓');});}
+function compartir(p,e){if(e)e.stopPropagation();var pick=p._pick||{};var txt='Wilson Analista\n'+p.teams.home.name+' vs '+p.teams.away.name+'\nLiga: '+p.league.name+'\nPick: '+pick.pick+(pick.mercado?' ['+pick.mercado+']':'')+(pick.prob?'\nProb: '+pick.prob+'%':'')+(pick.cuota?'  Cuota: '+pick.cuota:'')+(pick.ev!=null?'  EV: '+(pick.ev>=0?'+':'')+pick.ev+'%':'')+'\nConfianza: '+ctxt(pick.confianza)+'\n\n'+pick.razonamiento;if(navigator.share)navigator.share({title:'Wilson',text:txt}).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){showToast('Copiado ✓');});}
 function compartirCard(fid,e){if(e)e.stopPropagation();var p=window.partidosMap[String(fid)];if(p)compartir(p,null);}
-function compartirMejorPick(){if(!mejorPickData)return;var mp=mejorPickData;var txt='🏆 Wilson Analista — Mejor Pick\n'+mp.partido+'\n'+mp.liga+'\nPick: '+mp.pick+(mp.mercado?' ['+mp.mercado+']':'')+(mp.prob?'\nProb: '+mp.prob+'%':'')+(mp.cuota?'  Cuota: '+mp.cuota:'')+'\nConfianza: '+ctxt(mp.confianza)+'\n'+mp.sub;if(navigator.share)navigator.share({title:'Wilson',text:txt}).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){showToast('Copiado ✓');});}
+function compartirMejorPick(){if(!mejorPickData)return;var mp=mejorPickData;var txt='🏆 Wilson Analista — Mejor Pick\n'+mp.partido+'\n'+mp.liga+'\nPick: '+mp.pick+(mp.mercado?' ['+mp.mercado+']':'')+(mp.prob?'\nProb: '+mp.prob+'%':'')+(mp.cuota?'  Cuota: '+mp.cuota:'')+'\nConfianza: '+ctxt(mp.confianza)+'\n\n'+mp.sub;if(navigator.share)navigator.share({title:'Wilson',text:txt}).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){showToast('Copiado ✓');});}
 
 // ── FILTROS ───────────────────────────────────────────────────────
-function setFilter(f,el){filterActivo=f;document.querySelectorAll('.fchip').forEach(function(c){c.classList.remove('active');});if(el)el.classList.add('active');renderContenido();}
+function setFilter(f,el){
+  filterActivo=f;
+  document.querySelectorAll('.fchip').forEach(function(c){c.classList.remove('active');});
+  if(el)el.classList.add('active');
+  // Historial: vista especial
+  var hv=document.getElementById('historial-view');
+  var cont=document.getElementById('contenido');
+  var tabs=document.getElementById('tab-row-main');
+  var cd=document.getElementById('next-match-bar');
+  if(f==='historial'){
+    hv.classList.add('visible');
+    cont.style.display='none';
+    tabs.style.display='none';
+    cd.style.display='none';
+    document.getElementById('day-bar').style.display='none';
+    renderHistorial();
+  }else{
+    hv.classList.remove('visible');
+    cont.style.display='';
+    tabs.style.display='';
+    cd.style.display='';
+    if(tabActual==='proximo') document.getElementById('day-bar').style.display='flex';
+    renderContenido();
+  }
+}
+
 function filtrar(){searchTerm=document.getElementById('search-box').value.toLowerCase().trim();renderContenido();}
+
 function aplicarFiltros(partidos){
   var r=partidos.slice();
   if(tabActual==='proximo') r=r.filter(function(p){return esDia(p.fixture.date,diaActivo);});
@@ -644,14 +674,77 @@ function actualizarChips(){
   var gc=todos.filter(function(p){return p._pick&&p._pick.gemini;}).length;
   var mc=todos.filter(function(p){return p._pick&&p._pick.xGHome!=null;}).length;
   var evc=todos.filter(function(p){return p._pick&&p._pick.ev!=null&&p._pick.ev>0;}).length;
-  // Gemini chip
   var cg=document.getElementById('chip-gemini'), cge=document.getElementById('chip-gemini-count');
   if(gc>0){cg.classList.add('has-data');cge.textContent='('+gc+')';}else{cg.classList.remove('has-data');cge.textContent='';}
-  // Modelo chip
   var cm=document.getElementById('chip-modelo'), cme=document.getElementById('chip-modelo-count');
   if(mc>0){cm.classList.add('has-data');cme.textContent='('+mc+')';}else{cm.classList.remove('has-data');cme.textContent='';}
-  // EV+ chip
   document.getElementById('chip-ev-count').textContent=evc>0?'('+evc+')':'';
+}
+
+// ── HISTORIAL ────────────────────────────────────────────────────
+function renderHistorial(){
+  var hv=document.getElementById('historial-view');
+  hv.innerHTML='<div class="loading-mini" style="padding:40px;text-align:center;font-family:var(--mono);color:var(--text3)">⟳ Cargando historial...</div>';
+  fetch(SERVER+'/api/historial?limit=100')
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!data.success){hv.innerHTML='<div class="error-box">Error al cargar historial</div>';return;}
+      var picks=data.picks||[], stats=data.stats||{};
+      var html='';
+      // Stats generales
+      if(stats.predicciones>0){
+        var pct=stats.precision||0;
+        var pctColor=pct>=60?'verde':pct>=50?'':'rojo';
+        html+='<div class="hist-stats-grid">';
+        html+='<div class="hist-stat"><span class="hist-stat-val">'+stats.predicciones+'</span><span class="hist-stat-lbl">Predicciones</span></div>';
+        html+='<div class="hist-stat '+pctColor+'"><span class="hist-stat-val">'+pct+'%</span><span class="hist-stat-lbl">Precisión</span></div>';
+        html+='<div class="hist-stat"><span class="hist-stat-val">'+stats.correctas+'</span><span class="hist-stat-lbl">Correctas</span></div>';
+        html+='<div class="hist-stat"><span class="hist-stat-val" style="color:var(--text2)">'+stats.avgProb+'%</span><span class="hist-stat-lbl">Prob promedio</span></div>';
+        html+='<div class="hist-stat"><span class="hist-stat-val" style="color:var(--text2)">'+stats.brier+'</span><span class="hist-stat-lbl">Brier Score</span></div>';
+        html+='</div>';
+        // Calibración por rango
+        if(stats.porRango){
+          html+='<div class="calib-chart"><div class="calib-title">📈 Calibración por rango de probabilidad</div><div class="calib-bars">';
+          var rangos=[['90+','90%+'],['75-89','75-89%'],['60-74','60-74%'],['50-59','50-59%'],['-50','<50%']];
+          rangos.forEach(function(rg){
+            var r=stats.porRango[rg[0]];
+            if(!r||!r.t)return;
+            var prc=r.precision||0;
+            var color=prc>=60?'#a8ff3e':prc>=50?'#f5c842':'#ff3355';
+            html+='<div class="calib-row"><span class="calib-lbl">'+rg[1]+'</span><div class="calib-bar-wrap"><div class="calib-bar-fill" style="width:'+prc+'%;background:'+color+'20;border:1px solid '+color+'40"><span class="calib-bar-txt" style="color:'+color+'">'+prc+'%</span></div></div><span class="calib-count">'+r.c+'/'+r.t+'</span></div>';
+          });
+          html+='</div></div>';
+        }
+        // Por mercado
+        if(stats.porMercado && Object.keys(stats.porMercado).length>0){
+          html+='<div class="calib-chart"><div class="calib-title">🎯 Precisión por mercado</div><div class="mercado-stats">';
+          Object.entries(stats.porMercado).forEach(function(e){
+            var m=e[0], d=e[1];
+            var color=d.precision>=60?'var(--green)':d.precision>=50?'var(--gold)':'var(--red)';
+            html+='<div class="ms-item"><div class="ms-val" style="color:'+color+'">'+d.precision+'%</div><div class="ms-lbl">'+m+'</div><div class="ms-total">'+d.correctas+'/'+d.total+'</div></div>';
+          });
+          html+='</div></div>';
+        }
+      }else{
+        html+='<div class="hist-stats-grid"><div class="hist-stat" style="grid-column:1/-1;padding:30px;text-align:center"><span class="hist-stat-val" style="font-size:36px;opacity:.3">📊</span><span class="hist-stat-lbl" style="display:block;margin-top:8px">Los resultados aparecerán automáticamente cuando terminen los partidos</span></div></div>';
+      }
+      // Lista de picks
+      if(picks.length>0){
+        html+='<div style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:10px">ÚLTIMOS PICKS</div>';
+        html+='<div class="hist-list">';
+        picks.forEach(function(p){
+          var esC=p.correcto===true, esI=p.correcto===false, esPend=p.correcto===null;
+          var cls=esC?'correcto':esI?'incorrecto':'pendiente';
+          var icon=esC?'✅':esI?'❌':'⏳';
+          var fechaStr=new Date(p.ts).toLocaleDateString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+          var scoreStr=p.golesHome!=null?p.golesHome+'-'+p.golesAway:'—';
+          html+='<div class="hist-item '+cls+'"><div class="hist-result-icon">'+icon+'</div><div class="hist-info"><div class="hist-partido">'+(p.homeTeam||'?')+' vs '+(p.awayTeam||'?')+'</div><div class="hist-pick">'+esc(p.pick||'—')+'</div><div class="hist-mercado">'+esc(p.mercado||'—')+'</div></div><div class="hist-right"><div class="hist-score">'+scoreStr+'</div><div class="hist-prob">'+p.prob+'% prob</div><div class="hist-fecha">'+fechaStr+'</div></div></div>';
+        });
+        html+='</div>';
+      }
+      hv.innerHTML=html;
+    })
+    .catch(function(e){hv.innerHTML='<div class="error-box">Error: '+esc(e.message)+'</div>';});
 }
 
 // ── MEJOR PICK ────────────────────────────────────────────────────
@@ -738,7 +831,7 @@ function buildCardXgHtml(pick){
 
 function buildCardTopPicksHtml(pick){
   if(!pick||!pick.topPicks||pick.topPicks.length<2)return '';
-  return pick.topPicks.slice(0,3).map(function(tp,i){
+  return pick.topPicks.slice(0,4).map(function(tp,i){
     var evCls=tp.ev>0?' best':tp.ev<0?' ev-neg-item':'';
     return '<div class="ctp-item'+evCls+'"><div class="ctp-pick">'+esc(tp.pick)+'</div><div class="ctp-meta">'+tp.prob+'% @'+tp.cuota+(tp.ev!=null?' '+(tp.ev>=0?'+':'')+tp.ev+'%':'')+'</div></div>';
   }).join('');
@@ -755,7 +848,6 @@ function renderCard(p){
   if(esVivo) cls+=' vivo';
   if(isGemini) cls+=' gemini-card';
   if(isFav) cls+=' favorited';
-  // EV negativo: clase visual distintiva
   if(pick.ev!=null&&pick.ev<0) cls+=' ev-negativo';
   var infoHtml='';
   if(esVivo){
@@ -783,6 +875,7 @@ function renderCard(p){
 function renderSkeletons(n){var h='<div class="skeleton-grid">';for(var i=0;i<n;i++)h+='<div class="skeleton"></div>';return h+'</div>';}
 
 function renderContenido(){
+  if(filterActivo==='historial')return;
   var partidos=(tabActual==='vivo')?todosVivos:todosProximos;
   var filtrados=aplicarFiltros(partidos);
   actualizarContadoresDia();
@@ -795,7 +888,7 @@ function renderContenido(){
   }
   var grupos={};
   filtrados.forEach(function(p){var r=p._region||(p.league.country||'Otro');if(!grupos[r])grupos[r]=[];grupos[r].push(p);});
-  var prio=['Mundial','Selecciones','Argentina','Brasil','Chile','Colombia','Uruguay','Peru','Ecuador','Sudamerica','Inglaterra','Espana','Italia','Francia','Alemania','Portugal','Europa','Holanda','Turquia','Escocia','Suecia','Noruega','Finlandia','Irlanda','Japon','Australia','MLS','Mexico','China'];
+  var prio=['Mundial','Selecciones','Argentina','Brasil','Chile','Colombia','Uruguay','Peru','Ecuador','Venezuela','Paraguay','Bolivia','Sudamerica','Inglaterra','Espana','Italia','Francia','Alemania','Portugal','Europa','Holanda','Belgica','Turquia','Escocia','Grecia','Suecia','Noruega','Finlandia','Irlanda','Japon','Corea','Australia','MLS','Mexico','China'];
   var regiones=Object.keys(grupos).sort(function(a,b){var ia=prio.indexOf(a),ib=prio.indexOf(b);if(ia===-1)ia=99;if(ib===-1)ib=99;return ia-ib;});
   var html='';
   regiones.forEach(function(r){
@@ -864,7 +957,7 @@ function maTab(tab){
 
 function renderMaTab(){
   var p=maPartidoActual; if(!p)return;
-  var fid=String(p.fixture.id), body=document.getElementById('ma-body');
+  var body=document.getElementById('ma-body');
   if(maTabActual==='general'){body.innerHTML=renderMaGeneral(p);return;}
   if(maTabActual==='mercados'){body.innerHTML=renderMaMercados(p);return;}
   if(maTabActual==='modelo'){body.innerHTML=renderMaModelo(p);return;}
@@ -954,19 +1047,16 @@ function cargar(){
       if(todosVivos.length===0&&tabActual==='vivo') cambiarTab('proximo');
       else renderContenido();
       document.getElementById('update-time').textContent='Actualizado '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-      // Conectar SSE ahora que tenemos server confirmado
       conectarSSE();
-      // Mostrar banner Gemini si hay picks pendientes
       var sinGemini=todosProximos.filter(function(p){return p._pick&&!p._pick.gemini;}).length;
       if(sinGemini>0) document.getElementById('gemini-processing').classList.add('visible');
-      // Ocultar banner cuando lleguen picks por SSE
       setTimeout(function(){ document.getElementById('gemini-processing').classList.remove('visible'); }, 5*60*1000);
     })
     .catch(function(e){document.getElementById('contenido').innerHTML='<div class="error-box">⚠ Error al conectar con el servidor<br><small style="color:var(--text3)">'+esc(e.message)+'</small></div>';})
     .finally(function(){btn.disabled=false;btn.classList.remove('loading');});
 }
 
-// Pull-to-refresh (mobile)
+// Pull-to-refresh
 var ptStart=0, ptPulling=false;
 document.addEventListener('touchstart',function(e){ptStart=e.touches[0].clientY;},{passive:true});
 document.addEventListener('touchend',function(e){if(ptPulling&&e.changedTouches[0].clientY-ptStart>80&&window.scrollY===0){ptPulling=false;cargar();showToast('⟳ Actualizando...');}ptPulling=false;},{passive:true});
