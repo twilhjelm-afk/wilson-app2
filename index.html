@@ -453,7 +453,6 @@ function iniciarCountdown(){
   tick();countdownInterval=setInterval(tick,1000);
 }
 
-// ── FIX: toggleFav usa String(fid) ──
 function toggleFav(fid,e){
   if(e)e.stopPropagation();
   var k=String(fid);
@@ -471,7 +470,6 @@ function compartir(p,e){
   else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){showToast('Copiado ✓');});
 }
 
-// ── FIX: compartirCard — wrapper seguro para UUID IDs ──
 function compartirCard(fid,e){
   if(e)e.stopPropagation();
   var p=window.partidosMap[String(fid)];
@@ -589,7 +587,6 @@ function buildCardTopPicksHtml(pick){
 
 window.partidosMap={};
 
-// ── FIX CENTRAL: renderCard usa fidJson (JSON.stringify) en todos los onclick ──
 function renderCard(p){
   var esVivo=p._tipo==='vivo',pick=p._pick||{},region=p._region||(p.league.country||'Otro'),isGemini=!!pick.gemini;
   var fid=String(p.fixture.id);
@@ -668,13 +665,11 @@ function actualizarNav(){
 function filtrarRegion(r){regionActual=r;actualizarNav();renderContenido();}
 function cambiarTab(t){tabActual=t;document.getElementById('tab-v').className='tab'+(t==='vivo'?' active':'');document.getElementById('tab-p').className='tab'+(t==='proximo'?' active':'');renderContenido();}
 
-// ── FIX: encontrarPartido compara como strings ──
 function encontrarPartido(fid){
   var sfid=String(fid);
   return todosVivos.concat(todosProximos).find(function(p){return String(p.fixture.id)===sfid;});
 }
 
-// ── FIX: abrirMiniApp usa encontrarPartido fijo ──
 function abrirMiniApp(fid){
   var p=encontrarPartido(fid);if(!p)return;
   maPartidoActual=p;maTabActual='general';
@@ -723,14 +718,15 @@ function renderMaTab(){
   }
 }
 
-// ── FIX: renderMaGeneral usa JSON.stringify para los onclick del modal ──
 function renderMaGeneral(p){
   var pick=p._pick||{},isGemini=!!pick.gemini,isModelo=(!isGemini&&pick.xGHome!=null),ev=pick.ev!=null?pick.ev:null;
   var fidJson=JSON.stringify(String(p.fixture.id));
+  var evHtml='';
+  if(ev!=null)evHtml=' · EV: <strong class="'+(ev>=0?'ev-pos':'ev-neg')+'" style="font-size:11px;padding:1px 4px;border-radius:3px">'+(ev>=0?'+':'')+ev+'%</strong>';
   var html='<div class="ma-section"><div class="ma-section-title">🎯 Pick Wilson'+(isGemini?' <span style="color:var(--gemini);font-size:9px">✦ Gemini</span>':isModelo?' <span style="color:var(--cyan);font-size:9px">⊙ xG</span>':'')+'</div>'+
     (pick.mercado?'<div class="ma-pick-mercado-tag">'+esc(pick.mercado)+'</div>':'')+
     '<div class="ma-pick-val">'+esc(pick.pick||'Sin pick')+'</div>'+
-    (pick.prob?'<div style="font-family:var(--mono);font-size:12px;color:var(--text2);margin-bottom:4px">Prob: <strong style="color:var(--gold)">'+pick.prob+'%</strong>'+(pick.cuota?' · Cuota: <strong>'+pick.cuota+'</strong>':'')+(ev!=null?' · EV: <strong class="'+(ev>=0?'ev-pos':'ev-neg')+'" style="font-size:11px;padding:1px 4px;border-radius:3px">'+(ev>=0?'+':'')+ev+'%</strong>':'')+'</div>':'')+
+    (pick.prob?'<div style="font-family:var(--mono);font-size:12px;color:var(--text2);margin-bottom:4px">Prob: <strong style="color:var(--gold)">'+pick.prob+'%</strong>'+(pick.cuota?' · Cuota: <strong>'+pick.cuota+'</strong>':'')+evHtml+'</div>':'')+
     (pick.razonamiento?'<div class="ma-pick-razon">'+esc(pick.razonamiento)+'</div>':'')+
     (pick.alternativa?'<div class="ma-pick-alt">Alternativa: '+esc(pick.alternativa)+'</div>':'')+
     '<div class="ma-pick-footer"><span class="'+ccls(pick.confianza)+'" style="font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 8px;border-radius:4px">'+ctxt(pick.confianza)+'</span>'+
@@ -800,10 +796,86 @@ function renderMaStats(p,stats){
   return html;
 }
 
-function renderMaEventos(p,eventos){if(maTabActual==='goles')return renderGoles(p,eventos);if(maTabActual==='corners')return renderCorners(p,eventos);if(maTabActual==='tarjetas')return renderTarjetas(p,eventos);return '';}
-function renderGoles(p,ev){var g=(ev||[]).filter(function(e){return e.type==='Goal';});if(!g.length)return '<div class="no-data"><span class="no-data-icon">⚽</span>Sin goles</div>';var hId=p.teams.home.id;return '<div class="stat-sec" style="margin-top:0">Goles</div>'+g.map(function(e){var esH=e.team.id===hId;return '<div class="evento '+(esH?'ev-home':'ev-away')+'"><span class="ev-min">'+e.time.elapsed+"'</span><span class="ev-icon">⚽</span><div class="ev-info"><div class="ev-player">"+esc(e.player.name||'—')+'</div>'+(e.assist&&e.assist.name?'<div class="ev-detail">↗ '+esc(e.assist.name)+'</div>':'')+'<div class="ev-team">'+esc(e.team.name)+'</div></div></div>';}).join('');}
-function renderCorners(p,ev){var c=(ev||[]).filter(function(e){return e.type==='Corner';});var hId=p.teams.home.id;var cH=c.filter(function(e){return e.team.id===hId;}).length,cA=c.length-cH;var html='<div class="corners-header"><div><div class="cn-team" style="color:var(--blue)">'+esc(p.teams.home.name)+'</div><div class="cn-num">'+cH+'</div><div class="cn-sub">córners</div></div><div style="align-self:center;color:var(--text3);font-size:18px;font-weight:700;font-family:var(--mono)">—</div><div><div class="cn-team" style="color:var(--orange)">'+esc(p.teams.away.name)+'</div><div class="cn-num">'+cA+'</div><div class="cn-sub">córners</div></div></div>';if(!c.length)return html+'<div class="no-data"><span class="no-data-icon">🚩</span>Sin córners</div>';html+=c.map(function(e){var esH=e.team.id===hId;return '<div class="evento '+(esH?'ev-home':'ev-away')+'"><span class="ev-min">'+e.time.elapsed+"'</span><span class="ev-icon">🚩</span><div class="ev-info"><div class="ev-team">"+esc(e.team.name)+'</div></div></div>';}).join('');return html;}
-function renderTarjetas(p,ev){var t=(ev||[]).filter(function(e){return e.type==='Card';});var hId=p.teams.home.id;var am=t.filter(function(e){return e.detail==='Yellow Card';});var ro=t.filter(function(e){return e.detail==='Red Card'||e.detail==='Second Yellow Card';});var html='<div class="cards-summary"><div class="cards-box"><div class="cards-ico">🟡</div><div class="cards-n" style="color:var(--gold)">'+am.length+'</div><div class="cards-lbl">Amarillas</div></div><div class="cards-box"><div class="cards-ico">🔴</div><div class="cards-n" style="color:var(--red)">'+ro.length+'</div><div class="cards-lbl">Rojas</div></div></div>';if(!t.length)return html+'<div class="no-data"><span class="no-data-icon">🟡</span>Sin tarjetas</div>';html+=t.map(function(e){var esH=e.team.id===hId,isRo=e.detail!=='Yellow Card';return '<div class="evento '+(esH?'ev-home':'ev-away')+'"><span class="ev-min">'+e.time.elapsed+"'</span><span class="ev-icon">"+(isRo?'🔴':'🟡')+'</span><div class="ev-info"><div class="ev-player">'+esc(e.player.name||'—')+'</div>'+(isRo?'<div class="ev-detail">'+esc(e.detail)+'</div>':'')+'<div class="ev-team">'+esc(e.team.name)+'</div></div></div>';}).join('');return html;}
+// ── FUNCIONES CORREGIDAS: renderGoles, renderCorners, renderTarjetas ──
+// El bug original mezclaba comillas ' y " dentro de los strings de concatenación.
+
+function renderMaEventos(p,eventos){
+  if(maTabActual==='goles')return renderGoles(p,eventos);
+  if(maTabActual==='corners')return renderCorners(p,eventos);
+  if(maTabActual==='tarjetas')return renderTarjetas(p,eventos);
+  return '';
+}
+
+function renderGoles(p,ev){
+  var g=(ev||[]).filter(function(e){return e.type==='Goal';});
+  if(!g.length)return '<div class="no-data"><span class="no-data-icon">⚽</span>Sin goles</div>';
+  var hId=p.teams.home.id;
+  var out='<div class="stat-sec" style="margin-top:0">Goles</div>';
+  g.forEach(function(e){
+    var esH=e.team.id===hId;
+    var cls='evento '+(esH?'ev-home':'ev-away');
+    var assist=e.assist&&e.assist.name?'<div class="ev-detail">↗ '+esc(e.assist.name)+'</div>':'';
+    out+='<div class="'+cls+'">';
+    out+='<span class="ev-min">'+e.time.elapsed+"'</span>";
+    out+='<span class="ev-icon">⚽</span>';
+    out+='<div class="ev-info">';
+    out+='<div class="ev-player">'+esc(e.player.name||'—')+'</div>';
+    out+=assist;
+    out+='<div class="ev-team">'+esc(e.team.name)+'</div>';
+    out+='</div></div>';
+  });
+  return out;
+}
+
+function renderCorners(p,ev){
+  var c=(ev||[]).filter(function(e){return e.type==='Corner';});
+  var hId=p.teams.home.id;
+  var cH=c.filter(function(e){return e.team.id===hId;}).length;
+  var cA=c.length-cH;
+  var html='<div class="corners-header">';
+  html+='<div><div class="cn-team" style="color:var(--blue)">'+esc(p.teams.home.name)+'</div><div class="cn-num">'+cH+'</div><div class="cn-sub">córners</div></div>';
+  html+='<div style="align-self:center;color:var(--text3);font-size:18px;font-weight:700;font-family:var(--mono)">—</div>';
+  html+='<div><div class="cn-team" style="color:var(--orange)">'+esc(p.teams.away.name)+'</div><div class="cn-num">'+cA+'</div><div class="cn-sub">córners</div></div>';
+  html+='</div>';
+  if(!c.length)return html+'<div class="no-data"><span class="no-data-icon">🚩</span>Sin córners</div>';
+  c.forEach(function(e){
+    var esH=e.team.id===hId;
+    var cls='evento '+(esH?'ev-home':'ev-away');
+    html+='<div class="'+cls+'">';
+    html+='<span class="ev-min">'+e.time.elapsed+"'</span>";
+    html+='<span class="ev-icon">🚩</span>';
+    html+='<div class="ev-info"><div class="ev-team">'+esc(e.team.name)+'</div></div>';
+    html+='</div>';
+  });
+  return html;
+}
+
+function renderTarjetas(p,ev){
+  var t=(ev||[]).filter(function(e){return e.type==='Card';});
+  var hId=p.teams.home.id;
+  var am=t.filter(function(e){return e.detail==='Yellow Card';});
+  var ro=t.filter(function(e){return e.detail==='Red Card'||e.detail==='Second Yellow Card';});
+  var html='<div class="cards-summary">';
+  html+='<div class="cards-box"><div class="cards-ico">🟡</div><div class="cards-n" style="color:var(--gold)">'+am.length+'</div><div class="cards-lbl">Amarillas</div></div>';
+  html+='<div class="cards-box"><div class="cards-ico">🔴</div><div class="cards-n" style="color:var(--red)">'+ro.length+'</div><div class="cards-lbl">Rojas</div></div>';
+  html+='</div>';
+  if(!t.length)return html+'<div class="no-data"><span class="no-data-icon">🟡</span>Sin tarjetas</div>';
+  t.forEach(function(e){
+    var esH=e.team.id===hId;
+    var isRo=e.detail!=='Yellow Card';
+    var cls='evento '+(esH?'ev-home':'ev-away');
+    var detalle=isRo?'<div class="ev-detail">'+esc(e.detail)+'</div>':'';
+    html+='<div class="'+cls+'">';
+    html+='<span class="ev-min">'+e.time.elapsed+"'</span>";
+    html+='<span class="ev-icon">'+(isRo?'🔴':'🟡')+'</span>';
+    html+='<div class="ev-info">';
+    html+='<div class="ev-player">'+esc(e.player.name||'—')+'</div>';
+    html+=detalle;
+    html+='<div class="ev-team">'+esc(e.team.name)+'</div>';
+    html+='</div></div>';
+  });
+  return html;
+}
 
 function contarGemini(v,p){return(v||[]).concat(p||[]).filter(function(x){return x._pick&&x._pick.gemini;}).length;}
 function contarModelo(v,p){return(v||[]).concat(p||[]).filter(function(x){return x._pick&&x._pick.xGHome!=null;}).length;}
@@ -876,7 +948,6 @@ function cargar(){
       if(!json.success)throw new Error(json.message||'Error del servidor');
       todosVivos=json.vivos||[];todosProximos=json.proximos||[];
       window.partidosMap={};
-      // ── FIX: String key en el map ──
       todosVivos.concat(todosProximos).forEach(function(p){window.partidosMap[String(p.fixture.id)]=p;});
       document.getElementById('cnt-v').textContent=todosVivos.length;
       document.getElementById('tc-v').textContent=todosVivos.length;
