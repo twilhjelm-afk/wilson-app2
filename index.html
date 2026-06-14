@@ -47,6 +47,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .btn-refresh .spin{display:none;animation:spin .7s linear infinite}
 .btn-refresh.loading .spin{display:inline}
 .btn-refresh.loading .label-normal{display:none}
+
+/* ── BARRA DE FILTROS ── */
 .filter-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;gap:0;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;height:42px}
 .filter-bar::-webkit-scrollbar{display:none}
 .fchip{background:none;border:none;border-bottom:2px solid transparent;padding:0 14px;height:42px;font-family:var(--sans);font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s;display:flex;align-items:center;gap:5px;flex-shrink:0}
@@ -60,6 +62,17 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .fchip.modelo-chip.has-data{display:flex}
 .fchip.modelo-chip.active{color:var(--cyan);border-bottom-color:var(--cyan)}
 .fchip-dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.7;flex-shrink:0}
+.filter-sep{width:1px;height:20px;background:var(--border);margin:0 6px;flex-shrink:0}
+
+/* ── BARRA DE DÍAS ── */
+.day-bar{background:var(--bg);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;gap:6px;height:44px;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
+.day-bar::-webkit-scrollbar{display:none}
+.day-btn{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:5px 14px;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--text3);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;letter-spacing:.5px;display:flex;align-items:center;gap:5px}
+.day-btn:hover{border-color:var(--border2);color:var(--text2)}
+.day-btn.active{background:rgba(58,111,255,.12);border-color:rgba(58,111,255,.4);color:var(--text)}
+.day-btn .day-count{background:var(--bg3);border-radius:10px;padding:1px 6px;font-size:9px;font-weight:700;color:var(--text3);min-width:16px;text-align:center}
+.day-btn.active .day-count{color:var(--cyan)}
+
 .nav-bar{background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
 .nav-bar::-webkit-scrollbar{display:none}
 .nav-inner{max-width:1320px;margin:0 auto;display:flex;padding:0 20px}
@@ -339,6 +352,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <button class="btn-refresh" id="btn" onclick="cargar()"><span class="label-normal">&#8635; CARGAR</span><span class="spin">&#8635;</span></button>
   </div>
 </div></div>
+
+<!-- FILTROS -->
 <div class="filter-bar">
   <button class="fchip active" data-filter="todos" onclick="setFilter('todos',this)">Todos</button>
   <button class="fchip alta" data-filter="alta" onclick="setFilter('alta',this)"><span class="fchip-dot"></span>Alta confianza</button>
@@ -346,6 +361,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   <button class="fchip gemini-chip" id="chip-gemini" data-filter="gemini" onclick="setFilter('gemini',this)"><span class="fchip-dot"></span>Gemini <span id="chip-gemini-count" style="opacity:.6"></span></button>
   <button class="fchip" data-filter="favoritos" onclick="setFilter('favoritos',this)">&#9733; Favoritos</button>
 </div>
+
+<!-- SELECTOR DE DÍA -->
+<div class="day-bar" id="day-bar">
+  <button class="day-btn active" id="day-btn-0" onclick="setDia(0)">📅 Hoy <span class="day-count" id="day-count-0">0</span></button>
+  <button class="day-btn" id="day-btn-1" onclick="setDia(1)">⏭ Mañana <span class="day-count" id="day-count-1">0</span></button>
+  <button class="day-btn" id="day-btn-2" onclick="setDia(2)">📆 Pasado <span class="day-count" id="day-count-2">0</span></button>
+</div>
+
 <div class="nav-bar"><div class="nav-inner" id="nav-regiones"><button class="nav-btn active" onclick="filtrarRegion('todas')">Todas</button></div></div>
 <div class="layout">
   <div class="feed" id="feed-col">
@@ -415,6 +438,10 @@ var maPartidoActual=null,maStatsCache={},maEventosCache={},maTabActual='general'
 var filterActivo='todos',searchTerm='',favs={},mejorPickData=null;
 var countdownInterval=null,top5Visible=false;
 var GEMINI_POLL_MS=30000,GEMINI_MAX_POLLS=20,geminiPollTimer=null,geminiPollCount=0,geminiCountPrev=0;
+
+// ── DÍA ACTIVO (0=hoy, 1=mañana, 2=pasado) ──
+var diaActivo=0;
+
 try{favs=JSON.parse(localStorage.getItem('wilson_favs')||'{}');}catch(e){favs={};}
 var REGION_ICONS={'Mundial':'🌍','Selecciones':'🏆','Sudamerica':'🌎','Argentina':'🇦🇷','Brasil':'🇧🇷','Chile':'🇨🇱','Colombia':'🇨🇴','Uruguay':'🇺🇾','Peru':'🇵🇪','Ecuador':'🇪🇨','Paraguay':'🇵🇾','Bolivia':'🇧🇴','Venezuela':'🇻🇪','MLS':'🇺🇸','Australia':'🇦🇺','Japon':'🇯🇵','Suecia':'🇸🇪','Noruega':'🇳🇴','Espana':'🇪🇸','Inglaterra':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Francia':'🇫🇷','Italia':'🇮🇹','Alemania':'🇩🇪','Portugal':'🇵🇹','Turquia':'🇹🇷','Escocia':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Europa':'🇪🇺','Holanda':'🇳🇱','Finlandia':'🇫🇮','Irlanda':'🇮🇪','China':'🇨🇳','Mexico':'🇲🇽','Otro':'🌍'};
 function gi(r){return REGION_ICONS[r]||'🌍';}
@@ -423,6 +450,48 @@ function ccls(c){return 'conf-'+(c==='alta'?'alta':c==='media'?'media':'baja');}
 function ctxt(c){return c==='alta'?'ALTA':c==='media'?'MEDIA':'BAJA';}
 function pad(n){return n<10?'0'+n:''+n;}
 function showToast(msg,ms){var t=document.getElementById('toast');t.innerHTML=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},ms||2200);}
+
+// ── UTILIDADES DE FECHA ──
+function inicioDelDia(offset){
+  // offset: 0=hoy, 1=mañana, 2=pasado mañana
+  // Se usa hora local del usuario
+  var d=new Date();
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate()+offset);
+  return d;
+}
+function finDelDia(offset){
+  var d=inicioDelDia(offset);
+  d.setHours(23,59,59,999);
+  return d;
+}
+function esDia(fecha,offset){
+  var f=new Date(fecha);
+  return f>=inicioDelDia(offset)&&f<=finDelDia(offset);
+}
+function contarPorDia(partidos,offset){
+  return partidos.filter(function(p){return esDia(p.fixture.date,offset);}).length;
+}
+function nombreDia(offset){
+  var labels=['📅 Hoy','⏭ Mañana','📆 Pasado'];
+  return labels[offset]||'Día '+offset;
+}
+
+// ── SELECTOR DE DÍA ──
+function setDia(d){
+  diaActivo=d;
+  [0,1,2].forEach(function(i){
+    document.getElementById('day-btn-'+i).classList.toggle('active',i===d);
+  });
+  renderContenido();
+}
+
+function actualizarContadoresDia(){
+  var base=tabActual==='vivo'?todosVivos:todosProximos;
+  [0,1,2].forEach(function(i){
+    document.getElementById('day-count-'+i).textContent=contarPorDia(base,i);
+  });
+}
 
 function actualizarTicker(){
   var wrap=document.getElementById('ticker-wrap'),inner=document.getElementById('ticker-inner');
@@ -493,8 +562,13 @@ function setFilter(f,el){
   renderContenido();
 }
 function filtrar(){searchTerm=document.getElementById('search-box').value.toLowerCase().trim();renderContenido();}
+
 function aplicarFiltros(partidos){
   var r=partidos.slice();
+  // ── FILTRO DE DÍA (solo aplica a próximos) ──
+  if(tabActual==='proximo'){
+    r=r.filter(function(p){return esDia(p.fixture.date,diaActivo);});
+  }
   if(searchTerm)r=r.filter(function(p){return p.teams.home.name.toLowerCase().indexOf(searchTerm)!==-1||p.teams.away.name.toLowerCase().indexOf(searchTerm)!==-1||p.league.name.toLowerCase().indexOf(searchTerm)!==-1;});
   if(regionActual!=='todas')r=r.filter(function(p){return(p._region||p.league.country||'Otro')===regionActual;});
   if(filterActivo==='alta')r=r.filter(function(p){return p._pick&&p._pick.confianza==='alta';});
@@ -577,7 +651,7 @@ function buildPickHtml(pick){
 function buildCardXgHtml(pick,teams){
   if(!pick||pick.xGHome==null)return '';
   var xH=pick.xGHome,xA=pick.xGAway,tot=xH+xA||0.01,pctH=Math.round(xH/tot*100),pctA=100-pctH,probs=pick.probs||{};
-  return '<div class="card-xg-inner"><div class="cxg-title">⊙ xG</div><div class="cxg-row"><span class="cxg-val h">'+xH+'</span><div class="cxg-track"><div class="cxg-h" style="width:'+pctH+'%"></div><div class="cxg-a" style="width:'+pctA+'%"></div></div><span class="cxg-val a">'+xA+'</span></div>'+(probs.pHome!=null?'<div class="cxg-probs"><div class="cxg-p"><span class="cxg-pv">'+probs.pHome+'%</span><span class="cxg-pl">1</span></div><div class="cxg-p"><span class="cxg-pv">'+probs.pDraw+'%</span><span class="cxg-pl">X</span></div><div class="cxg-p"><span class="cxg-pv">'+probs.pAway+'%</span><span class="cxg-pl">2</span></div><div class="cxg-p"><span class="cxg-pv">'+probs.pOver25+'%</span><span class="cxg-pl">O2.5</span></div></div>':'')+' </div>';
+  return '<div class="card-xg-inner"><div class="cxg-title">⊙ xG</div><div class="cxg-row"><span class="cxg-val h">'+xH+'</span><div class="cxg-track"><div class="cxg-h" style="width:'+pctH+'%"></div><div class="cxg-a" style="width:'+pctA+'%"></div></div><span class="cxg-val a">'+xA+'</span></div>'+(probs.pHome!=null?'<div class="cxg-probs"><div class="cxg-p"><span class="cxg-pv">'+probs.pHome+'%</span><span class="cxg-pl">1</span></div><div class="cxg-p"><span class="cxg-pv">'+probs.pDraw+'%</span><span class="cxg-pl">X</span></div><div class="cxg-p"><span class="cxg-pv">'+probs.pAway+'%</span><span class="cxg-pl">2</span></div><div class="cxg-p"><span class="cxg-pv">'+probs.pOver25+'%</span><span class="cxg-pl">O2.5</span></div></div>':'')+'</div>';
 }
 
 function buildCardTopPicksHtml(pick){
@@ -626,9 +700,19 @@ function renderCard(p){
 function renderContenido(){
   var partidos=(tabActual==='vivo')?todosVivos:todosProximos;
   var filtrados=aplicarFiltros(partidos);
+
+  // Actualizar contadores de día
+  actualizarContadoresDia();
+
   document.getElementById('result-count').textContent=filtrados.length+' partido'+(filtrados.length===1?'':'s')+(searchTerm?' · "'+searchTerm+'"':'');
   if(!filtrados.length){
-    var msg=filterActivo==='favoritos'?'Sin favoritos guardados':searchTerm?'Sin resultados para "'+searchTerm+'"':tabActual==='vivo'?'No hay partidos en vivo':'Sin próximos esta semana';
+    var msg='';
+    if(tabActual==='proximo'){
+      var dNames=['hoy','mañana','pasado mañana'];
+      msg=filterActivo==='favoritos'?'Sin favoritos guardados':searchTerm?'Sin resultados para "'+searchTerm+'"':'Sin partidos para '+dNames[diaActivo];
+    }else{
+      msg=filterActivo==='favoritos'?'Sin favoritos guardados':searchTerm?'Sin resultados para "'+searchTerm+'"':'No hay partidos en vivo';
+    }
     document.getElementById('contenido').innerHTML='<div class="empty"><span class="empty-icon">⚽</span><p>'+msg+'</p></div>';
     return;
   }
@@ -663,7 +747,14 @@ function actualizarNav(){
 }
 
 function filtrarRegion(r){regionActual=r;actualizarNav();renderContenido();}
-function cambiarTab(t){tabActual=t;document.getElementById('tab-v').className='tab'+(t==='vivo'?' active':'');document.getElementById('tab-p').className='tab'+(t==='proximo'?' active':'');renderContenido();}
+function cambiarTab(t){
+  tabActual=t;
+  document.getElementById('tab-v').className='tab'+(t==='vivo'?' active':'');
+  document.getElementById('tab-p').className='tab'+(t==='proximo'?' active':'');
+  // Mostrar/ocultar barra de días solo en "próximos"
+  document.getElementById('day-bar').style.display=t==='proximo'?'flex':'none';
+  renderContenido();
+}
 
 function encontrarPartido(fid){
   var sfid=String(fid);
@@ -795,9 +886,6 @@ function renderMaStats(p,stats){
   html+='<div class="stat-sec">🟡 Disciplina</div>'+sr('Faltas','Fouls')+sr('Córners','Corner Kicks')+sr('Offside','Offsides');
   return html;
 }
-
-// ── FUNCIONES CORREGIDAS: renderGoles, renderCorners, renderTarjetas ──
-// El bug original mezclaba comillas ' y " dentro de los strings de concatenación.
 
 function renderMaEventos(p,eventos){
   if(maTabActual==='goles')return renderGoles(p,eventos);
@@ -957,6 +1045,7 @@ function cargar(){
       actualizarChipGemini(gc);actualizarChipModelo(mc);
       if(json.mejorPick)renderMejorPick(json.mejorPick);
       actualizarTicker();iniciarCountdown();actualizarNav();
+      // Auto-seleccionar tab según datos disponibles
       if(todosVivos.length===0&&tabActual==='vivo')cambiarTab('proximo');
       else renderContenido();
       document.getElementById('update-time').textContent='Actualizado '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
@@ -965,6 +1054,9 @@ function cargar(){
     .catch(function(e){document.getElementById('contenido').innerHTML='<div class="error-box">⚠ Error al conectar con el servidor<br><small style="color:var(--text3)">'+esc(e.message)+'</small></div>';})
     .finally(function(){btn.disabled=false;btn.classList.remove('loading');});
 }
+
+// Inicializar: ocultar day-bar en tab vivo
+document.getElementById('day-bar').style.display='none';
 
 var ptStart=0,ptPulling=false;
 document.addEventListener('touchstart',function(e){ptStart=e.touches[0].clientY;},{passive:true});
