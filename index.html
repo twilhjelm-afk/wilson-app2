@@ -514,6 +514,7 @@ try { favs = JSON.parse(localStorage.getItem('wilson_favs')||'{}'); } catch(e) {
 const REGION_ICONS = {'Mundial':'🌍','Selecciones':'🏆','Sudamerica':'🌎','Argentina':'🇦🇷','Brasil':'🇧🇷','Chile':'🇨🇱','Colombia':'🇨🇴','Uruguay':'🇺🇾','Peru':'🇵🇪','Ecuador':'🇪🇨','Paraguay':'🇵🇾','Bolivia':'🇧🇴','Venezuela':'🇻🇪','MLS':'🇺🇸','Australia':'🇦🇺','Japon':'🇯🇵','Corea':'🇰🇷','Suecia':'🇸🇪','Noruega':'🇳🇴','Espana':'🇪🇸','Inglaterra':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Francia':'🇫🇷','Italia':'🇮🇹','Alemania':'🇩🇪','Portugal':'🇵🇹','Turquia':'🇹🇷','Escocia':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Europa':'🇪🇺','Holanda':'🇳🇱','Belgica':'🇧🇪','Grecia':'🇬🇷','Finlandia':'🇫🇮','Irlanda':'🇮🇪','China':'🇨🇳','Mexico':'🇲🇽','Otro':'🌍'};
 function gi(r){return REGION_ICONS[r]||'🌍';}
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function jsq(s){return "'"+String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+"'";}
 function ccls(c){return 'conf-'+(c==='alta'?'alta':c==='media'?'media':'baja');}
 function ctxt(c){return c==='alta'?'ALTA':c==='media'?'MEDIA':'BAJA';}
 function pad(n){return n<10?'0'+n:''+n;}
@@ -841,7 +842,7 @@ window.partidosMap = {};
 
 function renderCard(p){
   var esVivo=p._tipo==='vivo', pick=p._pick||{}, region=p._region||(p.league.country||'Otro'), isGemini=!!pick.gemini;
-  var fid=String(p.fixture.id), fidJson=JSON.stringify(fid), isFav=!!favs[fid];
+  var fid=String(p.fixture.id), fidJson=jsq(fid), isFav=!!favs[fid];
   window.partidosMap[fid]=p;
   var cls='card';
   if(pick.confianza==='alta') cls+=' conf-alta'; else if(pick.confianza==='media') cls+=' conf-media'; else cls+=' conf-baja';
@@ -966,7 +967,7 @@ function renderMaTab(){
 
 function renderMaGeneral(p){
   var pick=p._pick||{}, isGemini=!!pick.gemini, isModelo=(!isGemini&&pick.xGHome!=null), ev=pick.ev!=null?pick.ev:null;
-  var fidJson=JSON.stringify(String(p.fixture.id));
+  var fidJson=jsq(String(p.fixture.id));
   var evHtml=ev!=null?' · EV: <strong class="'+(ev>=0?'ev-pos':'ev-neg')+'" style="font-size:11px;padding:1px 4px;border-radius:3px">'+(ev>=0?'+':'')+ev+'%</strong>':'';
   var html='<div class="ma-section"><div class="ma-section-title">🎯 Pick Wilson'+(isGemini?' <span style="color:var(--gemini);font-size:9px">✦ Gemini</span>':isModelo?' <span style="color:var(--cyan);font-size:9px">⊙ Dixon-Coles</span>':'')+'</div>'+
     (pick.mercado?'<div class="ma-pick-mercado-tag">'+esc(pick.mercado)+'</div>':'')+
