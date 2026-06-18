@@ -403,7 +403,451 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 </style>
 </head>
-<body>
+<!-- ═══════════════════════════════════════════════════════════════
+     WILSON CHAT IA — Pegar justo antes de </body> en index.html
+     Usa Gemini gratis a través de tu propio servidor Wilson.
+     No necesita ninguna key adicional — reutiliza las GEMINI_KEY_x
+     que ya tenés configuradas en Render.
+═══════════════════════════════════════════════════════════════ -->
+
+<style>
+.wc-fab{
+  position:fixed;bottom:calc(24px + var(--safe,0px));right:20px;
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,#0033bb,#00c4ef);
+  border:none;cursor:pointer;z-index:150;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(0,180,255,.4);
+  transition:transform .2s,box-shadow .2s;
+  font-size:22px;
+}
+.wc-fab:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(0,180,255,.55);}
+.wc-fab:active{transform:scale(.95);}
+.wc-unread{
+  position:absolute;top:-3px;right:-3px;
+  width:17px;height:17px;border-radius:50%;
+  background:var(--red,#ff3355);border:2px solid var(--bg,#080810);
+  font-size:8px;font-weight:800;color:#fff;
+  display:none;align-items:center;justify-content:center;
+  font-family:var(--mono,'JetBrains Mono',monospace);
+}
+.wc-unread.show{display:flex;}
+
+.wc-panel{
+  position:fixed;bottom:calc(88px + var(--safe,0px));right:20px;
+  width:365px;max-height:570px;
+  background:var(--bg2,#0d1117);
+  border:1px solid var(--border2,#252d4a);
+  border-radius:16px;
+  display:flex;flex-direction:column;
+  box-shadow:0 20px 60px rgba(0,0,0,.65);
+  z-index:149;overflow:hidden;
+  transform:translateY(18px) scale(.97);opacity:0;
+  transition:transform .25s cubic-bezier(.25,.46,.45,.94),opacity .22s;
+  pointer-events:none;
+}
+.wc-panel.open{transform:translateY(0) scale(1);opacity:1;pointer-events:all;}
+@media(max-width:500px){
+  .wc-panel{right:10px;left:10px;width:auto;bottom:calc(82px + var(--safe,0px));}
+}
+
+.wc-head{
+  padding:11px 14px;
+  background:var(--bg3,#111520);
+  border-bottom:1px solid var(--border,#1e2540);
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+}
+.wc-head-icon{
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,#0033bb,#00c4ef);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.wc-head-info{flex:1;min-width:0;}
+.wc-head-name{font-size:13px;font-weight:800;color:#fff;font-family:var(--sans,'Inter',sans-serif);letter-spacing:.3px;}
+.wc-head-status{font-size:10px;color:var(--green,#a8ff3e);font-family:var(--mono,'JetBrains Mono',monospace);display:flex;align-items:center;gap:4px;margin-top:1px;}
+.wc-head-dot{width:5px;height:5px;border-radius:50%;background:var(--green,#a8ff3e);animation:blink 2s ease-in-out infinite;flex-shrink:0;}
+.wc-close{background:none;border:none;color:var(--text3,#4a5270);font-size:16px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:color .15s,background .15s;line-height:1;}
+.wc-close:hover{color:var(--text,#c8d0e8);background:var(--bg4,#161b2e);}
+
+.wc-msgs{
+  flex:1;overflow-y:auto;padding:14px;
+  display:flex;flex-direction:column;gap:10px;
+  scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;
+}
+.wc-msgs::-webkit-scrollbar{width:3px;}
+.wc-msgs::-webkit-scrollbar-thumb{background:var(--border2,#252d4a);border-radius:2px;}
+
+.wc-msg{display:flex;flex-direction:column;gap:3px;max-width:88%;}
+.wc-msg.user{align-self:flex-end;align-items:flex-end;}
+.wc-msg.ai{align-self:flex-start;align-items:flex-start;}
+
+.wc-bubble{
+  padding:9px 12px;border-radius:12px;
+  font-size:12.5px;line-height:1.6;
+  font-family:var(--sans,'Inter',sans-serif);
+  word-break:break-word;
+}
+.wc-msg.user .wc-bubble{
+  background:linear-gradient(135deg,#0033bb,#1a6fff);
+  color:#fff;border-radius:12px 12px 3px 12px;
+}
+.wc-msg.ai .wc-bubble{
+  background:var(--bg3,#111520);color:var(--text,#c8d0e8);
+  border:1px solid var(--border,#1e2540);
+  border-radius:12px 12px 12px 3px;
+}
+.wc-bubble strong{color:#fff;font-weight:700;}
+.wc-tag-pick{
+  display:inline-block;background:rgba(245,200,66,.1);
+  border:1px solid rgba(245,200,66,.25);border-radius:5px;
+  padding:1px 7px;font-family:var(--mono,'JetBrains Mono',monospace);
+  font-size:10px;font-weight:700;color:var(--gold,#f5c842);
+}
+.wc-tag-prob{
+  display:inline-block;background:rgba(0,212,255,.08);
+  border:1px solid rgba(0,212,255,.2);border-radius:5px;
+  padding:1px 7px;font-family:var(--mono,'JetBrains Mono',monospace);
+  font-size:10px;color:var(--cyan,#00d4ff);
+}
+.wc-ev-pos{color:var(--ev-pos,#a8ff3e);font-weight:700;}
+.wc-ev-neg{color:var(--ev-neg,#ff3355);font-weight:700;}
+.wc-time{font-size:9px;color:var(--text3,#4a5270);font-family:var(--mono,'JetBrains Mono',monospace);}
+
+/* typing */
+.wc-typing-wrap{
+  align-self:flex-start;
+  background:var(--bg3,#111520);border:1px solid var(--border,#1e2540);
+  border-radius:12px 12px 12px 3px;
+  padding:10px 14px;display:flex;align-items:center;gap:5px;
+}
+.wc-dot{width:6px;height:6px;border-radius:50%;background:var(--text3,#4a5270);}
+.wc-dot:nth-child(1){animation:wc-b .9s ease-in-out infinite;}
+.wc-dot:nth-child(2){animation:wc-b .9s .18s ease-in-out infinite;}
+.wc-dot:nth-child(3){animation:wc-b .9s .36s ease-in-out infinite;}
+@keyframes wc-b{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+
+/* sugerencias */
+.wc-sugs{
+  display:flex;flex-wrap:wrap;gap:5px;
+  padding:8px 14px 6px;flex-shrink:0;
+}
+.wc-sug{
+  background:var(--bg3,#111520);border:1px solid var(--border,#1e2540);
+  border-radius:20px;padding:5px 12px;
+  font-size:10.5px;font-weight:600;color:var(--text2,#7a85a8);
+  cursor:pointer;white-space:nowrap;
+  transition:border-color .15s,color .15s,background .15s;
+  font-family:var(--sans,'Inter',sans-serif);
+}
+.wc-sug:hover{border-color:var(--cyan,#00d4ff);color:var(--cyan,#00d4ff);background:rgba(0,212,255,.05);}
+
+/* input */
+.wc-input-row{
+  display:flex;align-items:flex-end;gap:7px;
+  padding:10px 12px 12px;
+  border-top:1px solid var(--border,#1e2540);
+  background:var(--bg3,#111520);flex-shrink:0;
+}
+.wc-input{
+  flex:1;background:var(--bg4,#161b2e);border:1px solid var(--border,#1e2540);
+  border-radius:10px;padding:8px 12px;
+  color:var(--text,#c8d0e8);font-size:12.5px;
+  font-family:var(--sans,'Inter',sans-serif);
+  outline:none;resize:none;min-height:36px;max-height:96px;
+  transition:border-color .2s;line-height:1.45;
+  overflow-y:auto;
+}
+.wc-input:focus{border-color:var(--cyan2,#0099cc);}
+.wc-input::placeholder{color:var(--text3,#4a5270);}
+.wc-send{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,#0033bb,#00c4ef);
+  border:none;cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;transition:opacity .15s,transform .15s;
+  color:#fff;
+}
+.wc-send:hover{opacity:.88;}
+.wc-send:active{transform:scale(.92);}
+.wc-send:disabled{opacity:.3;cursor:not-allowed;}
+</style>
+
+<!-- Botón flotante -->
+<button class="wc-fab" id="wc-fab" onclick="wcToggle()" title="Wilson IA · Preguntá sobre los partidos">
+  ⚽
+  <span class="wc-unread" id="wc-unread">1</span>
+</button>
+
+<!-- Panel del chat -->
+<div class="wc-panel" id="wc-panel">
+  <div class="wc-head">
+    <div class="wc-head-icon">⚽</div>
+    <div class="wc-head-info">
+      <div class="wc-head-name">Wilson IA</div>
+      <div class="wc-head-status"><span class="wc-head-dot"></span>Dixon-Coles · Gemini</div>
+    </div>
+    <button class="wc-close" onclick="wcToggle()" title="Cerrar">✕</button>
+  </div>
+  <div class="wc-msgs" id="wc-msgs"></div>
+  <div class="wc-sugs" id="wc-sugs"></div>
+  <div class="wc-input-row">
+    <textarea
+      class="wc-input" id="wc-input"
+      placeholder="Preguntame sobre cualquier partido..."
+      rows="1"
+      onkeydown="wcKey(event)"
+      oninput="wcResize(this)"
+    ></textarea>
+    <button class="wc-send" id="wc-send" onclick="wcEnviar()">➤</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var wcOpen = false;
+  var wcHistory = [];
+  var wcBusy = false;
+  var wcSugsHidden = false;
+
+  // ── TOGGLE ──────────────────────────────────────────────────────
+  window.wcToggle = function(){
+    wcOpen = !wcOpen;
+    document.getElementById('wc-panel').classList.toggle('open', wcOpen);
+    document.getElementById('wc-unread').classList.remove('show');
+    if(wcOpen){
+      if(wcHistory.length === 0) wcBienvenida();
+      if(!wcSugsHidden) wcMostrarSugs();
+      setTimeout(function(){ document.getElementById('wc-input').focus(); }, 280);
+    }
+  };
+
+  // ── BIENVENIDA ───────────────────────────────────────────────────
+  function wcBienvenida(){
+    var todos = (window.todosProximos||[]).concat(window.todosVivos||[]);
+    var mp = window.mejorPickData;
+    var txt = '¡Hola! Soy <strong>Wilson IA</strong>. Tengo acceso a <strong>' + todos.length + ' partido' + (todos.length===1?'':'s') + '</strong> analizados con el modelo Dixon-Coles.';
+    if(mp){
+      txt += '<br><br>🏆 Mi mejor pick ahora mismo es <span class="wc-tag-pick">' + xEsc(mp.pick) + '</span> en <strong>' + xEsc(mp.partido) + '</strong>';
+      if(mp.prob) txt += ' con <span class="wc-tag-prob">' + mp.prob + '%</span> de probabilidad';
+      txt += '.';
+    }
+    if(todos.length === 0){
+      txt = '¡Hola! Soy <strong>Wilson IA</strong>. Hacé clic en <strong>CARGAR</strong> primero para que pueda ver los partidos y darte análisis en tiempo real.';
+    }
+    txt += '<br><br>Preguntame lo que quieras sobre mercados, picks o estrategia.';
+    wcAddMsg('ai', txt, true);
+  }
+
+  // ── SUGERENCIAS ──────────────────────────────────────────────────
+  function wcGetSugs(){
+    var todos = (window.todosProximos||[]).concat(window.todosVivos||[]);
+    var sugs = [];
+    if(!todos.length) return ['¿Cómo funciona el modelo Dixon-Coles?','¿Qué es el EV positivo?','¿Cómo uso los picks?','¿Cuándo carga los partidos?'];
+
+    var alta = todos.filter(function(p){ return p._pick && p._pick.confianza==='alta'; });
+    var evpos = todos.filter(function(p){ return p._pick && p._pick.ev > 5; });
+    var mp = window.mejorPickData;
+
+    if(mp) sugs.push('¿Por qué es el mejor pick ' + mp.partido + '?');
+    if(alta.length) sugs.push('Mostrame todos los picks de alta confianza');
+    if(evpos.length) sugs.push('¿Cuál tiene mejor EV positivo hoy?');
+    var p0 = todos[0];
+    sugs.push('Analizá el partido ' + p0.teams.home.name + ' vs ' + p0.teams.away.name);
+    sugs.push('¿Qué mercado recomendás para hoy?');
+    return sugs.slice(0,4);
+  }
+
+  function wcMostrarSugs(){
+    var el = document.getElementById('wc-sugs');
+    el.innerHTML = wcGetSugs().map(function(s){
+      return '<button class="wc-sug" onclick="wcUsarSug(this,' + JSON.stringify(s) + ')">' + xEsc(s) + '</button>';
+    }).join('');
+    el.style.display = 'flex';
+  }
+
+  window.wcUsarSug = function(btn, txt){
+    document.getElementById('wc-input').value = txt;
+    wcEnviar();
+  };
+
+  // ── MENSAJES ─────────────────────────────────────────────────────
+  function xEsc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function wcAddMsg(role, content, isHtml){
+    var msgs = document.getElementById('wc-msgs');
+    var hora = new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    var div = document.createElement('div');
+    div.className = 'wc-msg ' + role;
+    div.innerHTML = '<div class="wc-bubble">' + (isHtml ? content : xEsc(content)) + '</div><span class="wc-time">' + hora + '</span>';
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function wcShowTyping(){
+    var msgs = document.getElementById('wc-msgs');
+    var div = document.createElement('div');
+    div.id = 'wc-typing';
+    div.className = 'wc-msg ai';
+    div.innerHTML = '<div class="wc-typing-wrap"><span class="wc-dot"></span><span class="wc-dot"></span><span class="wc-dot"></span></div>';
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function wcHideTyping(){ var el=document.getElementById('wc-typing'); if(el) el.remove(); }
+
+  // ── CONTEXTO DE PARTIDOS ─────────────────────────────────────────
+  function wcBuildContext(){
+    var todos = (window.todosProximos||[]).concat(window.todosVivos||[]);
+    if(!todos.length) return 'No hay partidos cargados todavía.';
+
+    var ctx = 'PARTIDOS ANALIZADOS POR WILSON (' + todos.length + ' total):\n\n';
+
+    // Ordenar por score: alta confianza + EV+ primero
+    var conPick = todos.filter(function(p){ return p._pick; });
+    conPick.sort(function(a,b){
+      var sa = (a._pick.confianza==='alta'?3:a._pick.confianza==='media'?2:1) + (a._pick.ev>0?2:0) + (a._pick.gemini?1:0);
+      var sb = (b._pick.confianza==='alta'?3:b._pick.confianza==='media'?2:1) + (b._pick.ev>0?2:0) + (b._pick.gemini?1:0);
+      return sb-sa;
+    });
+
+    conPick.slice(0,15).forEach(function(p,i){
+      var pick = p._pick;
+      var fecha = new Date(p.fixture.date);
+      var hora = fecha.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+      var esVivo = p._tipo==='vivo';
+      ctx += (i+1)+'. '+p.teams.home.name+' vs '+p.teams.away.name;
+      ctx += ' | '+p.league.name+' ('+p._region+')';
+      ctx += ' | '+(esVivo ? 'EN VIVO '+(p.fixture.status.elapsed||'')+"'" : hora);
+      if(esVivo && p.goals) ctx += ' | '+( p.goals.home||0)+'-'+(p.goals.away||0);
+      ctx += '\n   Pick: "'+pick.pick+'" ['+pick.mercado+'] | Confianza: '+pick.confianza.toUpperCase();
+      if(pick.prob) ctx += ' | Prob: '+pick.prob+'%';
+      if(pick.cuota) ctx += ' | Cuota: '+pick.cuota;
+      if(pick.ev!=null) ctx += ' | EV: '+(pick.ev>=0?'+':'')+pick.ev+'%';
+      if(pick.xGHome!=null) ctx += '\n   xG: Local '+pick.xGHome+' | Visita '+pick.xGAway;
+      if(pick.probs) ctx += ' | 1X2: '+pick.probs.pHome+'% / '+pick.probs.pDraw+'% / '+pick.probs.pAway+'%';
+      if(pick.probs && pick.probs.pOver25) ctx += ' | Over2.5: '+pick.probs.pOver25+'% | BTTS: '+pick.probs.pBTTS+'%';
+      if(pick.razonamiento) ctx += '\n   Análisis: '+pick.razonamiento;
+      if(pick.alternativa) ctx += '\n   Alternativa: '+pick.alternativa;
+      ctx += '\n\n';
+    });
+
+    var mp = window.mejorPickData;
+    if(mp){
+      ctx += '═══ MEJOR PICK GLOBAL ═══\n';
+      ctx += mp.partido+' | '+mp.liga+'\n';
+      ctx += 'Pick: "'+mp.pick+'" ['+mp.mercado+'] | Confianza: '+mp.confianza;
+      if(mp.prob) ctx += ' | Prob: '+mp.prob+'%';
+      if(mp.cuota) ctx += ' | Cuota: '+mp.cuota;
+      if(mp.ev!=null) ctx += ' | EV: '+(mp.ev>=0?'+':'')+mp.ev+'%';
+      ctx += '\nAnálisis: '+mp.sub+'\n';
+    }
+
+    return ctx;
+  }
+
+  // ── FORMATEAR RESPUESTA ──────────────────────────────────────────
+  function wcFormat(txt){
+    txt = xEsc(txt);
+    // **negrita**
+    txt = txt.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    // *cursiva*
+    txt = txt.replace(/\*(.*?)\*/g,'<em>$1</em>');
+    // Picks entre comillas → tag dorado
+    txt = txt.replace(/&quot;([^&]{2,50})&quot;/g,'<span class="wc-tag-pick">$1</span>');
+    // Probabilidades >= 55% → tag cyan
+    txt = txt.replace(/(\d{2,3}(?:\.\d)?%)/g,function(m){
+      var n=parseFloat(m);
+      return n>=55?'<span class="wc-tag-prob">'+m+'</span>':m;
+    });
+    // EV con signo
+    txt = txt.replace(/EV[:\s]+([+\-]\d+(?:\.\d+)?%?)/g,function(m,ev){
+      var cls = ev.startsWith('+')||(!ev.startsWith('-')&&parseFloat(ev)>0)?'wc-ev-pos':'wc-ev-neg';
+      return 'EV: <span class="'+cls+'">'+ev+'</span>';
+    });
+    // Saltos de línea
+    txt = txt.replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+    return txt;
+  }
+
+  // ── ENVIAR ────────────────────────────────────────────────────────
+  window.wcEnviar = async function(){
+    if(wcBusy) return;
+    var input = document.getElementById('wc-input');
+    var txt = input.value.trim();
+    if(!txt) return;
+
+    input.value = '';
+    wcResize(input);
+
+    // Ocultar sugerencias tras primer envío
+    if(!wcSugsHidden){
+      wcSugsHidden = true;
+      document.getElementById('wc-sugs').style.display = 'none';
+    }
+
+    wcAddMsg('user', txt, false);
+    wcHistory.push({ role:'user', content: txt });
+
+    wcBusy = true;
+    document.getElementById('wc-send').disabled = true;
+    wcShowTyping();
+
+    // El primer mensaje del historial lleva el contexto de partidos embebido
+    var mensajes = wcHistory.slice(-8).map(function(m,i){
+      if(i===0 && m.role==='user'){
+        return { role:'user', content: wcBuildContext() + '\n\nPREGUNTA: ' + m.content };
+      }
+      return { role: m.role, content: m.content };
+    });
+
+    try {
+      var resp = await fetch(window.SERVER + '/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ messages: mensajes })
+      });
+
+      var data = await resp.json();
+      wcHideTyping();
+
+      if(!data.success) throw new Error(data.message || 'Error del servidor');
+
+      wcHistory.push({ role:'assistant', content: data.text });
+      wcAddMsg('ai', wcFormat(data.text), true);
+
+    } catch(e){
+      wcHideTyping();
+      var err = e.message || 'Error desconocido';
+      if(err.includes('429')) err = 'Gemini está ocupado, esperá unos segundos e intentá de nuevo.';
+      else if(err.includes('503')) err = 'Gemini no está configurado en el servidor. Verificá que GEMINI_KEY_1 esté en las variables de Render.';
+      else if(err.includes('Failed to fetch') || err.includes('NetworkError')) err = 'Sin conexión con el servidor Wilson. ¿Está activo en Render?';
+      wcAddMsg('ai', err, false);
+    }
+
+    wcBusy = false;
+    document.getElementById('wc-send').disabled = false;
+    document.getElementById('wc-input').focus();
+  };
+
+  window.wcKey = function(e){
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); wcEnviar(); }
+  };
+
+  window.wcResize = function(el){
+    el.style.height='auto';
+    el.style.height = Math.min(el.scrollHeight,96)+'px';
+  };
+
+  // Mostrar badge 3s después de cargar
+  setTimeout(function(){
+    if(!wcOpen) document.getElementById('wc-unread').classList.add('show');
+  }, 3000);
+
+})();
+</script>
+  <body>
 <div class="ticker-wrap" id="ticker-wrap"><div class="ticker-inner" id="ticker-inner"><span class="ticker-label">LIVE</span></div></div>
 <div class="header"><div class="header-inner">
   <a href="#" class="logo" onclick="return false">
