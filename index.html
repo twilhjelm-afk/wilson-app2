@@ -1473,7 +1473,74 @@ function renderMaModelo(p){
   html+='</div><div class="ma-section"><div class="ma-section-title">🎯 Pick del modelo</div>'+(pick.mercado?'<div class="ma-pick-mercado-tag">'+esc(pick.mercado)+'</div>':'')+'<div style="font-size:15px;font-weight:800;color:var(--gold);margin-bottom:5px">'+esc(pick.pick||'—')+'</div>'+(pick.razonamiento?'<div style="font-size:12px;color:var(--text);line-height:1.5">'+esc(pick.razonamiento)+'</div>':'')+'</div>';
   return html;
 }
+// ── TAB: ESTIMACIÓN IA (corners/tarjetas/tiros/offsides) ──────────
+// ⚠️ Estos datos NO vienen del motor Dixon-Coles real. Son una
+// estimación generada por IA, sin base de datos verificada. Por eso
+// se piden on-demand (no se precargan) y se muestran con badge propio.
+var maEstimacionCache = {}; // fixtureId -> data (para no re-pedir si ya se abrió)
 
+function renderMaEstimacionIA(p){
+  var body = document.getElementById('ma-body');
+  var fid = String(p.fixture.id);
+
+  if (maEstimacionCache[fid]) {
+    body.innerHTML = buildEstimacionHtml(maEstimacionCache[fid]);
+    return;
+  }
+
+  body.innerHTML = '<div class="loading-mini">⚠ Generando estimación con IA...</div>';
+
+  fetch(SERVER + '/api/stats-estimadas/' + fid)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (!data.success) {
+        body.innerHTML = '<div class="no-data"><span class="no-data-icon">⚠</span>' + esc(data.message || 'No se pudo generar la estimación') + '</div>';
+        return;
+      }
+      maEstimacionCache[fid] = data;
+      body.innerHTML = buildEstimacionHtml(data);
+    })
+    .catch(function(e){
+      body.innerHTML = '<div class="no-data"><span class="no-data-icon">⚠</span>Error: ' + esc(e.message) + '</div>';
+    });
+}
+
+function buildEstimacionHtml(data){
+  var html = '<div class="ma-section" style="border-color:rgba(255,107,53,.2)">';
+  html += '<div class="ma-section-title">⚠ Estimación IA <span class="badge-estimacion" style="margin-left:6px">NO VERIFICADO</span></div>';
+  html += '<div style="font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:10px">';
+  html += 'Proyección estadística aproximada generada por IA, sin datos reales del partido. ';
+  html += 'No usar como única base para decisiones.';
+  if (data.nota) html += '<br><em style="color:var(--text3)">' + esc(data.nota) + '</em>';
+  html += '</div></div>';
+
+  var statsLabels = {
+    corners: '⛳ Corners',
+    tarjetas: '🟨 Tarjetas',
+    tirosTotales: '🎯 Tiros totales',
+    tirosAlArco: '🥅 Tiros al arco',
+    offsides: '🚩 Offsides'
+  };
+
+  Object.keys(statsLabels).forEach(function(key){
+    var s = data.stats && data.stats[key];
+    if (!s) return;
+    html += '<div class="ma-section">';
+    html += '<div class="ma-section-title">' + statsLabels[key] + '</div>';
+    html += '<div style="font-family:var(--mono);font-size:20px;font-weight:800;color:var(--orange);margin-bottom:8px">' + s.lambda + ' <span style="font-size:10px;color:var(--text3);font-weight:400">esperado</span></div>';
+
+    if (s.overUnder && s.overUnder.length) {
+      html += '<div class="ma-probs-grid">';
+      s.overUnder.forEach(function(ou){
+        html += '<div class="ma-prob"><span class="ma-pv" style="color:var(--orange)">' + ou.over + '%</span><div class="ma-pl">Over ' + ou.linea + '</div></div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+
+  return html;
+}
 // ── CARGA INICIAL ─────────────────────────────────────────────────
 function cargar(){
   var btn=document.getElementById('btn');
