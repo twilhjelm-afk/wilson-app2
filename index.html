@@ -117,6 +117,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .badge{font-family:var(--mono);font-size:8px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:1px}
 .badge-gold{background:rgba(245,200,66,.15);color:var(--gold);border:1px solid rgba(245,200,66,.25)}
 .badge-gemini{background:rgba(66,133,244,.15);color:var(--gemini);border:1px solid rgba(66,133,244,.25);display:none}
+.badge-estimacion{background:rgba(255,107,53,.12);color:var(--orange);border:1px solid rgba(255,107,53,.25);font-family:var(--mono);font-size:8px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:1px}
 .tp-body{padding:14px 16px}
 .tp-partido{font-size:17px;font-weight:800;color:#fff;margin-bottom:2px;letter-spacing:-.3px}
 .tp-liga{font-size:11px;color:var(--text2);margin-bottom:12px;display:flex;align-items:center;gap:5px}
@@ -940,6 +941,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="ma-tab"       onclick="maTab('mercados')"  id="mat-mercados">Mercados</div>
       <div class="ma-tab"       onclick="maTab('modelo')"    id="mat-modelo">xG</div>
       <div class="ma-tab"       onclick="maTab('stats')"     id="mat-stats">Stats</div>
+      <div class="ma-tab" onclick="maTab('estimacion')" id="mat-estimacion">⚠ Estim. IA</div>
     </div>
     <div class="ma-body" id="ma-body"><div class="loading-mini">⚽ Cargando...</div></div>
   </div>
