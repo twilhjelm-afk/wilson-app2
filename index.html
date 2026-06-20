@@ -1408,6 +1408,7 @@ function renderMaTab(){
   if(maTabActual==='general'){body.innerHTML=renderMaGeneral(p);return;}
   if(maTabActual==='mercados'){body.innerHTML=renderMaMercados(p);return;}
   if(maTabActual==='modelo'){body.innerHTML=renderMaModelo(p);return;}
+  if(maTabActual==='estimacion'){renderMaEstimacionIA(p);return;}
   body.innerHTML='<div class="no-data"><span class="no-data-icon">📊</span>Stats disponibles con BSD Live (agrega BSD_KEY al servidor)</div>';
 }
 
